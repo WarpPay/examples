@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+    <style>
+        h1 {
+            font-family: Pacifico, sans-serif;
+            font-size: 4em;
+            color: #3eb5f1;
+            margin: 0;
+        }
+
+        h2 {
+            font-weight: 300;
+            font-family: sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .gh-banner {
+            position: fixed;
+            height: 50px;
+            width: 100vw;
+        }
+
+        .left-col {
+            flex: 1;
+            display: block;
+            flex-direction: column;
+        }
+
+        .item-image {
+            width: 100%;
+        }
+
+        .right-col {
+            flex: 2;
+            flex-direction: column;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        /* Warp widget styling */
+
+        #warp-frame-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%;
+        }
+
+        #warp-frame {
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+        }
+
+        @media only screen and (max-width: 1000px) {
+            body {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id='gh-banner'>
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" height=20 width=20 />
+        <b>
+            This Warp example is hosted on GitHub <a href="https://www.github.com/warppay/examples"></a>
+        </b>
+    </div>
+    <div class="left-col">
+        <img class="item-image" src="{{item.imageUrl}}" />
+    </div>
+    <div class="right-col">
+        <h1>{{item.name}}</h1>
+        <h2>{{item.description}}</h2>
+        <div id="warp-frame-container">
+            <script>
+                const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+                const eventer = window[eventMethod];
+                const messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+
+                // Listen to message from parent window
+                eventer(messageEvent, function (event) {
+                    const key = event.message ? "message" : "data";
+                    const data = event[key];
+                    const { type, content } = data
+
+                    console.log('received message from widget: ' + JSON.stringify(event.data))
+
+                    switch (type) {
+                        case 'ui/sizeChanged':
+                            const { height, width } = content
+                            const iframeEl = document.getElementById('warp-frame')
+                            iframeEl.style.height = height + 20 + 'px'
+                            iframeEl.style.width = width + 'px'
+                            console.log(`received ui/sizeChanged event; new values are height = ${iframeEl.style.height}, width = ${iframeEl.style.width}`)
+                            break
+                        default:
+                            console.error('no handler for postMessage event of type: ' + type)
+                    }
+                }, false);
+
+            </script>
+            <iframe id="warp-frame"
+                src="https://widget-cdn-staging.usewarp.com/?id=item123&merchantId=merchant123&paymentType=one-off&shippable=true&amount=12.25&currency=GBP"
+                frameborder="0" scrolling="no" />
+        </div>
+    </div>
+</body>
+
+</html>
